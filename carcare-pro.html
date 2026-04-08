@@ -1,0 +1,1165 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, viewport-fit=cover, user-scalable=no">
+    <meta name="apple-mobile-web-app-capable" content="yes">
+    <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
+    <meta name="apple-mobile-web-app-title" content="CarCare Pro">
+    <meta name="theme-color" content="#000000">
+    <meta name="description" content="CarCare Pro - Controle completo de manutenção do seu veículo">
+    <title>CarCare Pro</title>
+    <link rel="manifest" href="data:application/manifest+json,{%22name%22:%22CarCare%20Pro%22,%22short_name%22:%22CarCare%22,%22start_url%22:%22/%22,%22display%22:%22standalone%22,%22background_color%22:%22%23000000%22,%22theme_color%22:%22%23000000%22,%22icons%22:[{%22src%22:%22data:image/svg+xml,%3Csvg%20xmlns=%27http://www.w3.org/2000/svg%27%20viewBox=%270%200%20192%20192%27%3E%3Crect%20fill=%27%230a84ff%27%20width=%27192%27%20height=%27192%27/%3E%3Ctext%20x=%2796%27%20y=%27120%27%20font-size=%2780%27%20font-weight=%27bold%27%20fill=%27white%27%20text-anchor=%27middle%27%20font-family=%27-apple-system%27%3E🚗%3C/text%3E%3C/svg%3E%22,%22sizes%22:%22192x192%22,%22type%22:%22image/svg+xml%22}]}">
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+            -webkit-tap-highlight-color: transparent;
+            -webkit-user-select: none;
+            user-select: none;
+        }
+
+        html, body {
+            width: 100%;
+            height: 100%;
+            font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
+            background: #000000;
+            color: #ffffff;
+            overflow: hidden;
+            position: fixed;
+        }
+
+        body {
+            display: flex;
+            flex-direction: column;
+        }
+
+        /* Header */
+        .header {
+            position: fixed;
+            top: 0;
+            left: 0;
+            right: 0;
+            height: 56px;
+            background: rgba(0, 0, 0, 0.95);
+            backdrop-filter: blur(20px);
+            border-bottom: 1px solid #38383a;
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            padding: 0 16px;
+            z-index: 100;
+            padding-top: max(0px, env(safe-area-inset-top));
+        }
+
+        .header-title {
+            font-size: 18px;
+            font-weight: 600;
+            flex: 1;
+            text-align: center;
+        }
+
+        .header-btn {
+            width: 44px;
+            height: 44px;
+            border-radius: 50%;
+            background: rgba(255, 255, 255, 0.1);
+            border: none;
+            color: #0a84ff;
+            font-size: 16px;
+            cursor: pointer;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            transition: background 0.2s;
+        }
+
+        .header-btn:active {
+            background: rgba(255, 255, 255, 0.2);
+        }
+
+        .header-btn.back {
+            color: #0a84ff;
+        }
+
+        .header-btn.invisible {
+            visibility: hidden;
+        }
+
+        /* Main Content */
+        .main-content {
+            flex: 1;
+            overflow-y: auto;
+            margin-top: 56px;
+            margin-bottom: 0;
+            padding-bottom: 20px;
+            padding-top: max(0px, env(safe-area-inset-top));
+        }
+
+        .main-content::-webkit-scrollbar {
+            width: 4px;
+        }
+
+        .main-content::-webkit-scrollbar-track {
+            background: transparent;
+        }
+
+        .main-content::-webkit-scrollbar-thumb {
+            background: #38383a;
+            border-radius: 2px;
+        }
+
+        /* Dashboard Screen */
+        .screen {
+            display: none;
+            animation: slideIn 0.3s ease-out;
+        }
+
+        .screen.active {
+            display: flex;
+            flex-direction: column;
+        }
+
+        .screen.slide-out {
+            animation: slideOut 0.3s ease-out;
+        }
+
+        @keyframes slideIn {
+            from {
+                transform: translateX(100%);
+                opacity: 0;
+            }
+            to {
+                transform: translateX(0);
+                opacity: 1;
+            }
+        }
+
+        @keyframes slideOut {
+            from {
+                transform: translateX(0);
+                opacity: 1;
+            }
+            to {
+                transform: translateX(100%);
+                opacity: 0;
+            }
+        }
+
+        @keyframes slideInBack {
+            from {
+                transform: translateX(-100%);
+                opacity: 0;
+            }
+            to {
+                transform: translateX(0);
+                opacity: 1;
+            }
+        }
+
+        .screen.slide-in-back {
+            animation: slideInBack 0.3s ease-out;
+        }
+
+        /* Dashboard Content */
+        .dashboard-content {
+            padding: 16px;
+        }
+
+        .km-display {
+            background: linear-gradient(135deg, #1c1c1e 0%, #2c2c2e 100%);
+            border-radius: 16px;
+            padding: 24px;
+            margin-bottom: 24px;
+            border: 1px solid #38383a;
+            text-align: center;
+            cursor: pointer;
+            transition: transform 0.2s;
+        }
+
+        .km-display:active {
+            transform: scale(0.98);
+        }
+
+        .km-label {
+            font-size: 14px;
+            color: #8e8e93;
+            margin-bottom: 8px;
+        }
+
+        .km-value {
+            font-size: 48px;
+            font-weight: 700;
+            color: #0a84ff;
+            font-variant-numeric: tabular-nums;
+        }
+
+        .km-unit {
+            font-size: 18px;
+            color: #8e8e93;
+            margin-left: 8px;
+        }
+
+        /* Cards Grid */
+        .cards-grid {
+            display: grid;
+            grid-template-columns: 1fr 1fr;
+            gap: 12px;
+        }
+
+        .card {
+            background: #1c1c1e;
+            border-radius: 12px;
+            padding: 16px;
+            border: 1px solid #38383a;
+            cursor: pointer;
+            transition: all 0.2s;
+            display: flex;
+            flex-direction: column;
+        }
+
+        .card:active {
+            background: #2c2c2e;
+            transform: scale(0.98);
+        }
+
+        .card-icon {
+            font-size: 32px;
+            margin-bottom: 12px;
+        }
+
+        .card-name {
+            font-size: 13px;
+            font-weight: 600;
+            margin-bottom: 12px;
+            line-height: 1.2;
+        }
+
+        .card-progress {
+            width: 100%;
+            height: 4px;
+            background: #38383a;
+            border-radius: 2px;
+            overflow: hidden;
+            margin-bottom: 8px;
+        }
+
+        .card-progress-bar {
+            height: 100%;
+            background: #30d158;
+            border-radius: 2px;
+            transition: width 0.3s, background 0.3s;
+        }
+
+        .card-progress-bar.warning {
+            background: #ff9f0a;
+        }
+
+        .card-progress-bar.danger {
+            background: #ff453a;
+        }
+
+        .card-status {
+            font-size: 12px;
+            color: #8e8e93;
+            margin-bottom: 4px;
+        }
+
+        .card-km {
+            font-size: 12px;
+            font-weight: 600;
+            color: #0a84ff;
+        }
+
+        /* Detail Screen */
+        .detail-header {
+            background: linear-gradient(135deg, #1c1c1e 0%, #2c2c2e 100%);
+            padding: 24px 16px;
+            text-align: center;
+            border-bottom: 1px solid #38383a;
+        }
+
+        .detail-icon {
+            font-size: 64px;
+            margin-bottom: 12px;
+        }
+
+        .detail-title {
+            font-size: 24px;
+            font-weight: 700;
+            margin-bottom: 4px;
+        }
+
+        .detail-subtitle {
+            font-size: 14px;
+            color: #8e8e93;
+        }
+
+        .detail-content {
+            padding: 24px 16px;
+        }
+
+        .progress-circle-container {
+            display: flex;
+            justify-content: center;
+            margin-bottom: 32px;
+        }
+
+        .progress-circle {
+            width: 180px;
+            height: 180px;
+            border-radius: 50%;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            position: relative;
+            background: conic-gradient(
+                #30d158 0deg,
+                #30d158 var(--progress-angle),
+                #38383a var(--progress-angle),
+                #38383a 360deg
+            );
+            padding: 8px;
+        }
+
+        .progress-circle.warning {
+            background: conic-gradient(
+                #ff9f0a 0deg,
+                #ff9f0a var(--progress-angle),
+                #38383a var(--progress-angle),
+                #38383a 360deg
+            );
+        }
+
+        .progress-circle.danger {
+            background: conic-gradient(
+                #ff453a 0deg,
+                #ff453a var(--progress-angle),
+                #38383a var(--progress-angle),
+                #38383a 360deg
+            );
+        }
+
+        .progress-circle-inner {
+            width: 164px;
+            height: 164px;
+            border-radius: 50%;
+            background: #000000;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            justify-content: center;
+        }
+
+        .progress-percentage {
+            font-size: 48px;
+            font-weight: 700;
+            color: #0a84ff;
+            font-variant-numeric: tabular-nums;
+        }
+
+        .progress-percentage-unit {
+            font-size: 16px;
+            color: #8e8e93;
+        }
+
+        .progress-status {
+            font-size: 18px;
+            font-weight: 600;
+            text-align: center;
+            margin-bottom: 24px;
+            color: #30d158;
+        }
+
+        .progress-status.warning {
+            color: #ff9f0a;
+        }
+
+        .progress-status.danger {
+            color: #ff453a;
+        }
+
+        /* Info Grid */
+        .info-grid {
+            display: grid;
+            grid-template-columns: 1fr 1fr;
+            gap: 12px;
+            margin-bottom: 24px;
+        }
+
+        .info-card {
+            background: #1c1c1e;
+            border-radius: 12px;
+            padding: 16px;
+            border: 1px solid #38383a;
+        }
+
+        .info-label {
+            font-size: 12px;
+            color: #8e8e93;
+            margin-bottom: 8px;
+            text-transform: uppercase;
+            letter-spacing: 0.5px;
+        }
+
+        .info-value {
+            font-size: 18px;
+            font-weight: 700;
+            color: #ffffff;
+            font-variant-numeric: tabular-nums;
+        }
+
+        .info-value.success {
+            color: #30d158;
+        }
+
+        /* Buttons */
+        .btn-primary {
+            background: #0a84ff;
+            color: white;
+            border: none;
+            border-radius: 12px;
+            padding: 16px;
+            font-size: 16px;
+            font-weight: 600;
+            cursor: pointer;
+            width: 100%;
+            margin-bottom: 24px;
+            transition: background 0.2s;
+        }
+
+        .btn-primary:active {
+            background: #0066cc;
+        }
+
+        /* History Section */
+        .history-section {
+            margin-bottom: 24px;
+        }
+
+        .history-title {
+            font-size: 14px;
+            font-weight: 600;
+            color: #8e8e93;
+            text-transform: uppercase;
+            letter-spacing: 0.5px;
+            margin-bottom: 12px;
+            padding: 0 16px;
+        }
+
+        .history-list {
+            display: flex;
+            flex-direction: column;
+            gap: 0;
+        }
+
+        .history-item {
+            background: #1c1c1e;
+            border-bottom: 1px solid #38383a;
+            padding: 16px;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+        }
+
+        .history-item:last-child {
+            border-bottom: none;
+            border-radius: 0 0 12px 12px;
+        }
+
+        .history-item:first-child {
+            border-radius: 12px 12px 0 0;
+        }
+
+        .history-info {
+            flex: 1;
+        }
+
+        .history-date {
+            font-size: 14px;
+            font-weight: 600;
+            color: #ffffff;
+            margin-bottom: 4px;
+        }
+
+        .history-km {
+            font-size: 12px;
+            color: #8e8e93;
+        }
+
+        .history-cost {
+            font-size: 16px;
+            font-weight: 700;
+            color: #30d158;
+            text-align: right;
+        }
+
+        .history-empty {
+            text-align: center;
+            padding: 32px 16px;
+            color: #8e8e93;
+            font-size: 14px;
+        }
+
+        /* Modal */
+        .modal-overlay {
+            display: none;
+            position: fixed;
+            bottom: 0;
+            left: 0;
+            right: 0;
+            top: 0;
+            background: rgba(0, 0, 0, 0.4);
+            backdrop-filter: blur(4px);
+            z-index: 200;
+            animation: fadeIn 0.2s ease-out;
+        }
+
+        .modal-overlay.active {
+            display: flex;
+            align-items: flex-end;
+        }
+
+        @keyframes fadeIn {
+            from {
+                opacity: 0;
+            }
+            to {
+                opacity: 1;
+            }
+        }
+
+        .modal {
+            background: #1c1c1e;
+            width: 100%;
+            border-radius: 20px 20px 0 0;
+            padding: 16px;
+            max-height: 80vh;
+            overflow-y: auto;
+            animation: slideUp 0.3s ease-out;
+            padding-bottom: max(16px, env(safe-area-inset-bottom));
+        }
+
+        @keyframes slideUp {
+            from {
+                transform: translateY(100%);
+            }
+            to {
+                transform: translateY(0);
+            }
+        }
+
+        .modal-handle {
+            width: 40px;
+            height: 4px;
+            background: #38383a;
+            border-radius: 2px;
+            margin: 8px auto 16px;
+        }
+
+        .modal-title {
+            font-size: 18px;
+            font-weight: 700;
+            margin-bottom: 20px;
+            text-align: center;
+        }
+
+        .form-group {
+            margin-bottom: 16px;
+        }
+
+        .form-label {
+            display: block;
+            font-size: 14px;
+            font-weight: 600;
+            margin-bottom: 8px;
+            color: #ffffff;
+        }
+
+        .form-input {
+            width: 100%;
+            background: #2c2c2e;
+            border: 1px solid #38383a;
+            border-radius: 8px;
+            padding: 12px;
+            color: #ffffff;
+            font-size: 16px;
+            font-family: inherit;
+            transition: border-color 0.2s;
+        }
+
+        .form-input:focus {
+            outline: none;
+            border-color: #0a84ff;
+        }
+
+        .form-input::placeholder {
+            color: #8e8e93;
+        }
+
+        .form-row {
+            display: grid;
+            grid-template-columns: 1fr 1fr;
+            gap: 12px;
+        }
+
+        .modal-buttons {
+            display: grid;
+            grid-template-columns: 1fr 1fr;
+            gap: 12px;
+            margin-top: 24px;
+        }
+
+        .btn-cancel {
+            background: #2c2c2e;
+            color: #0a84ff;
+            border: none;
+            border-radius: 8px;
+            padding: 12px;
+            font-size: 16px;
+            font-weight: 600;
+            cursor: pointer;
+            transition: background 0.2s;
+        }
+
+        .btn-cancel:active {
+            background: #3c3c3e;
+        }
+
+        .btn-save {
+            background: #0a84ff;
+            color: white;
+            border: none;
+            border-radius: 8px;
+            padding: 12px;
+            font-size: 16px;
+            font-weight: 600;
+            cursor: pointer;
+            transition: background 0.2s;
+        }
+
+        .btn-save:active {
+            background: #0066cc;
+        }
+
+        /* Responsive */
+        @media (max-width: 480px) {
+            .cards-grid {
+                grid-template-columns: 1fr 1fr;
+            }
+        }
+
+        /* Safe area support */
+        @supports (padding: max(0px)) {
+            body {
+                padding-left: max(0px, env(safe-area-inset-left));
+                padding-right: max(0px, env(safe-area-inset-right));
+            }
+        }
+    </style>
+</head>
+<body>
+    <!-- Header -->
+    <header class="header">
+        <button class="header-btn" id="headerLeftBtn">+ Carro</button>
+        <div class="header-title" id="headerTitle">CarCare Pro</div>
+        <button class="header-btn" id="headerRightBtn">✏️</button>
+    </header>
+
+    <!-- Main Content -->
+    <main class="main-content">
+        <!-- Dashboard Screen -->
+        <div class="screen active" id="dashboardScreen">
+            <div class="dashboard-content">
+                <div class="km-display" id="kmDisplay">
+                    <div class="km-label">KM Atual</div>
+                    <div>
+                        <span class="km-value" id="kmValue">0</span>
+                        <span class="km-unit">km</span>
+                    </div>
+                </div>
+
+                <div class="cards-grid" id="cardsGrid"></div>
+            </div>
+        </div>
+
+        <!-- Detail Screen -->
+        <div class="screen" id="detailScreen">
+            <div class="detail-header">
+                <div class="detail-icon" id="detailIcon">🛢️</div>
+                <div class="detail-title" id="detailTitle">Óleo do Motor</div>
+                <div class="detail-subtitle" id="detailSubtitle">Em dia</div>
+            </div>
+
+            <div class="detail-content">
+                <div class="progress-circle-container">
+                    <div class="progress-circle" id="progressCircle" style="--progress-angle: 180deg;">
+                        <div class="progress-circle-inner">
+                            <div>
+                                <span class="progress-percentage" id="progressPercentage">50</span><span class="progress-percentage-unit">%</span>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+
+                <div class="progress-status" id="progressStatus">Em dia</div>
+
+                <div class="info-grid">
+                    <div class="info-card">
+                        <div class="info-label">Última Troca</div>
+                        <div class="info-value" id="lastChangeKm">-</div>
+                        <div class="info-label" style="margin-top: 8px;">Data</div>
+                        <div class="info-value" id="lastChangeDate">-</div>
+                    </div>
+                    <div class="info-card">
+                        <div class="info-label">Próxima Troca</div>
+                        <div class="info-value" id="nextChangeKm">-</div>
+                        <div class="info-label" style="margin-top: 8px;">Intervalo</div>
+                        <div class="info-value" id="intervalKm">10.000 km</div>
+                    </div>
+                    <div class="info-card">
+                        <div class="info-label">Intervalo Padrão</div>
+                        <div class="info-value" id="standardInterval">10.000 km</div>
+                    </div>
+                    <div class="info-card">
+                        <div class="info-label">Total Gasto</div>
+                        <div class="info-value success" id="totalCost">R$ 0</div>
+                    </div>
+                </div>
+
+                <button class="btn-primary" id="addRecordBtn">+ Registrar Nova Troca</button>
+
+                <div class="history-section">
+                    <div class="history-title">Histórico</div>
+                    <div class="history-list" id="historyList">
+                        <div class="history-empty">Nenhum registro ainda</div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </main>
+
+    <!-- Modal Overlay -->
+    <div class="modal-overlay" id="modalOverlay">
+        <div class="modal" id="modal">
+            <div class="modal-handle"></div>
+            <div class="modal-title">Registrar Nova Troca</div>
+
+            <form id="recordForm">
+                <div class="form-group">
+                    <label class="form-label">Data</label>
+                    <input type="date" class="form-input" id="recordDate" required>
+                </div>
+
+                <div class="form-row">
+                    <div class="form-group">
+                        <label class="form-label">KM Atual</label>
+                        <input type="number" class="form-input" id="recordKm" placeholder="0" required>
+                    </div>
+                    <div class="form-group">
+                        <label class="form-label">Custo R$</label>
+                        <input type="number" class="form-input" id="recordCost" placeholder="0" step="0.01">
+                    </div>
+                </div>
+
+                <div class="form-group">
+                    <label class="form-label">Próxima Troca KM (opcional)</label>
+                    <input type="number" class="form-input" id="recordNextKm" placeholder="Calcula automático">
+                </div>
+
+                <div class="form-group">
+                    <label class="form-label">Observações</label>
+                    <input type="text" class="form-input" id="recordNotes" placeholder="Adicione notas...">
+                </div>
+
+                <div class="modal-buttons">
+                    <button type="button" class="btn-cancel" id="cancelBtn">Cancelar</button>
+                    <button type="submit" class="btn-save">Salvar Registro</button>
+                </div>
+            </form>
+        </div>
+    </div>
+
+    <script>
+        // Data Structure
+        const MAINTENANCE_ITEMS = {
+            oil: { name: 'Óleo do Motor', icon: '🛢️', interval: 10000 },
+            oilFilter: { name: 'Filtro de Óleo', icon: '🔄', interval: 10000 },
+            airFilter: { name: 'Filtro de Ar', icon: '💨', interval: 20000 },
+            fuelFilter: { name: 'Filtro Combustível', icon: '⛽', interval: 30000 },
+            brakePads: { name: 'Pastilhas Freio', icon: '🛑', interval: 40000 },
+            tires: { name: 'Pneus', icon: '🛞', interval: 50000 },
+            battery: { name: 'Bateria', icon: '🔋', interval: 60000 },
+            coolant: { name: 'Fluido Arrefecimento', icon: '❄️', interval: 40000 },
+            transmissionOil: { name: 'Óleo Câmbio', icon: '⚙️', interval: 60000 },
+            serpentineBelt: { name: 'Correia Dentada', icon: '⛓️', interval: 80000 }
+        };
+
+        // App State
+        let appData = {
+            currentKm: 0,
+            records: {}
+        };
+
+        let currentItem = null;
+
+        // Initialize
+        function init() {
+            loadData();
+            setupEventListeners();
+            renderDashboard();
+            setDefaultDate();
+            registerServiceWorker();
+        }
+
+        // Service Worker Registration
+        function registerServiceWorker() {
+            if ('serviceWorker' in navigator) {
+                const swCode = `
+                    self.addEventListener('install', event => {
+                        event.waitUntil(self.skipWaiting());
+                    });
+                    self.addEventListener('activate', event => {
+                        event.waitUntil(self.clients.claim());
+                    });
+                    self.addEventListener('fetch', event => {
+                        if (event.request.method === 'GET') {
+                            event.respondWith(
+                                caches.match(event.request).then(response => {
+                                    return response || fetch(event.request);
+                                })
+                            );
+                        }
+                    });
+                `;
+                const blob = new Blob([swCode], { type: 'application/javascript' });
+                const swUrl = URL.createObjectURL(blob);
+                navigator.serviceWorker.register(swUrl).catch(() => {});
+            }
+        }
+
+        // Data Management
+        function loadData() {
+            const saved = localStorage.getItem('carcare_data');
+            if (saved) {
+                appData = JSON.parse(saved);
+            } else {
+                appData = {
+                    currentKm: 0,
+                    records: {}
+                };
+                Object.keys(MAINTENANCE_ITEMS).forEach(key => {
+                    appData.records[key] = [];
+                });
+            }
+        }
+
+        function saveData() {
+            localStorage.setItem('carcare_data', JSON.stringify(appData));
+        }
+
+        // Event Listeners
+        function setupEventListeners() {
+            document.getElementById('headerLeftBtn').addEventListener('click', addCar);
+            document.getElementById('headerRightBtn').addEventListener('click', editKm);
+            document.getElementById('kmDisplay').addEventListener('click', editKm);
+            document.getElementById('addRecordBtn').addEventListener('click', openModal);
+            document.getElementById('cancelBtn').addEventListener('click', closeModal);
+            document.getElementById('recordForm').addEventListener('submit', saveRecord);
+            document.getElementById('modalOverlay').addEventListener('click', (e) => {
+                if (e.target === document.getElementById('modalOverlay')) {
+                    closeModal();
+                }
+            });
+        }
+
+        // Dashboard Rendering
+        function renderDashboard() {
+            document.getElementById('kmValue').textContent = appData.currentKm.toLocaleString('pt-BR');
+            
+            const grid = document.getElementById('cardsGrid');
+            grid.innerHTML = '';
+
+            Object.entries(MAINTENANCE_ITEMS).forEach(([key, item]) => {
+                const card = createCard(key, item);
+                grid.appendChild(card);
+            });
+        }
+
+        function createCard(key, item) {
+            const card = document.createElement('div');
+            card.className = 'card';
+            
+            const records = appData.records[key] || [];
+            const lastRecord = records.length > 0 ? records[records.length - 1] : null;
+            const lastKm = lastRecord ? lastRecord.km : 0;
+            const nextKm = lastRecord ? lastRecord.nextKm : item.interval;
+            const kmRemaining = nextKm - appData.currentKm;
+            const percentRemaining = Math.max(0, Math.min(100, (kmRemaining / item.interval) * 100));
+            
+            let status = 'Nunca trocado';
+            let statusClass = '';
+            let kmText = `${item.interval.toLocaleString('pt-BR')} km`;
+
+            if (lastRecord) {
+                if (kmRemaining > 0) {
+                    if (percentRemaining > 20) {
+                        status = 'Em dia';
+                        statusClass = '';
+                    } else {
+                        status = 'Troque em breve';
+                        statusClass = 'warning';
+                    }
+                    kmText = `${kmRemaining.toLocaleString('pt-BR')} km`;
+                } else {
+                    status = 'Atrasado!';
+                    statusClass = 'danger';
+                    kmText = `${Math.abs(kmRemaining).toLocaleString('pt-BR')} km atrasado`;
+                }
+            }
+
+            const progressPercent = lastRecord ? percentRemaining : 0;
+
+            card.innerHTML = `
+                <div class="card-icon">${item.icon}</div>
+                <div class="card-name">${item.name}</div>
+                <div class="card-progress">
+                    <div class="card-progress-bar ${statusClass}" style="width: ${progressPercent}%"></div>
+                </div>
+                <div class="card-status">${status}</div>
+                <div class="card-km">${kmText}</div>
+            `;
+
+            card.addEventListener('click', () => showDetail(key, item));
+            return card;
+        }
+
+        // Detail Screen
+        function showDetail(key, item) {
+            currentItem = { key, ...item };
+            
+            document.getElementById('detailIcon').textContent = item.icon;
+            document.getElementById('detailTitle').textContent = item.name;
+            
+            const records = appData.records[key] || [];
+            const lastRecord = records.length > 0 ? records[records.length - 1] : null;
+            
+            let status = 'Nunca trocado';
+            let statusClass = '';
+            let percentage = 0;
+
+            if (lastRecord) {
+                const kmRemaining = lastRecord.nextKm - appData.currentKm;
+                const percentRemaining = Math.max(0, Math.min(100, (kmRemaining / item.interval) * 100));
+                percentage = percentRemaining;
+
+                if (kmRemaining > 0) {
+                    if (percentRemaining > 20) {
+                        status = 'Em dia';
+                    } else {
+                        status = 'Troque em breve';
+                        statusClass = 'warning';
+                    }
+                } else {
+                    status = 'Atrasado!';
+                    statusClass = 'danger';
+                }
+            }
+
+            document.getElementById('detailSubtitle').textContent = status;
+            
+            const circle = document.getElementById('progressCircle');
+            circle.className = `progress-circle ${statusClass}`;
+            const angle = (percentage / 100) * 360;
+            circle.style.setProperty('--progress-angle', `${angle}deg`);
+            
+            document.getElementById('progressPercentage').textContent = Math.round(percentage);
+            
+            const statusEl = document.getElementById('progressStatus');
+            statusEl.className = `progress-status ${statusClass}`;
+            statusEl.textContent = status;
+
+            // Info Cards
+            if (lastRecord) {
+                document.getElementById('lastChangeKm').textContent = lastRecord.km.toLocaleString('pt-BR');
+                document.getElementById('lastChangeDate').textContent = new Date(lastRecord.date).toLocaleDateString('pt-BR');
+                document.getElementById('nextChangeKm').textContent = lastRecord.nextKm.toLocaleString('pt-BR');
+            } else {
+                document.getElementById('lastChangeKm').textContent = '-';
+                document.getElementById('lastChangeDate').textContent = '-';
+                document.getElementById('nextChangeKm').textContent = item.interval.toLocaleString('pt-BR');
+            }
+
+            document.getElementById('intervalKm').textContent = item.interval.toLocaleString('pt-BR') + ' km';
+            document.getElementById('standardInterval').textContent = item.interval.toLocaleString('pt-BR') + ' km';
+
+            const totalCost = records.reduce((sum, r) => sum + (r.cost || 0), 0);
+            document.getElementById('totalCost').textContent = `R$ ${totalCost.toFixed(2).replace('.', ',')}`;
+
+            renderHistory(records);
+
+            // Switch screens
+            const dashboardScreen = document.getElementById('dashboardScreen');
+            const detailScreen = document.getElementById('detailScreen');
+            
+            dashboardScreen.classList.add('slide-out');
+            setTimeout(() => {
+                dashboardScreen.classList.remove('active', 'slide-out');
+                detailScreen.classList.add('active', 'slide-in-back');
+            }, 300);
+        }
+
+        function renderHistory(records) {
+            const historyList = document.getElementById('historyList');
+            
+            if (records.length === 0) {
+                historyList.innerHTML = '<div class="history-empty">Nenhum registro ainda</div>';
+                return;
+            }
+
+            historyList.innerHTML = records.map(record => `
+                <div class="history-item">
+                    <div class="history-info">
+                        <div class="history-date">${new Date(record.date).toLocaleDateString('pt-BR')}</div>
+                        <div class="history-km">${record.km.toLocaleString('pt-BR')} km${record.notes ? ' • ' + record.notes : ''}</div>
+                    </div>
+                    <div class="history-cost">R$ ${record.cost.toFixed(2).replace('.', ',')}</div>
+                </div>
+            `).reverse().join('');
+        }
+
+        // Modal
+        function openModal() {
+            document.getElementById('modalOverlay').classList.add('active');
+            setDefaultDate();
+            document.getElementById('recordKm').value = appData.currentKm;
+        }
+
+        function closeModal() {
+            document.getElementById('modalOverlay').classList.remove('active');
+            document.getElementById('recordForm').reset();
+        }
+
+        function setDefaultDate() {
+            const today = new Date().toISOString().split('T')[0];
+            document.getElementById('recordDate').value = today;
+        }
+
+        function saveRecord(e) {
+            e.preventDefault();
+
+            const date = document.getElementById('recordDate').value;
+            const km = parseInt(document.getElementById('recordKm').value);
+            const cost = parseFloat(document.getElementById('recordCost').value) || 0;
+            const nextKm = parseInt(document.getElementById('recordNextKm').value) || (km + currentItem.interval);
+            const notes = document.getElementById('recordNotes').value;
+
+            const record = { date, km, cost, nextKm, notes };
+
+            if (!appData.records[currentItem.key]) {
+                appData.records[currentItem.key] = [];
+            }
+
+            appData.records[currentItem.key].push(record);
+
+            // Update current KM if necessary
+            if (km > appData.currentKm) {
+                appData.currentKm = km;
+            }
+
+            saveData();
+            closeModal();
+
+            // Refresh detail screen
+            showDetail(currentItem.key, currentItem);
+        }
+
+        // Navigation
+        function goBack() {
+            const dashboardScreen = document.getElementById('dashboardScreen');
+            const detailScreen = document.getElementById('detailScreen');
+            
+            detailScreen.classList.add('slide-out');
+            setTimeout(() => {
+                detailScreen.classList.remove('active', 'slide-out');
+                dashboardScreen.classList.add('active');
+                renderDashboard();
+            }, 300);
+        }
+
+        // Header Button Actions
+        function addCar() {
+            const km = prompt('Quantos KM tem o carro?', appData.currentKm.toString());
+            if (km !== null && km !== '') {
+                appData.currentKm = Math.max(0, parseInt(km) || 0);
+                saveData();
+                renderDashboard();
+            }
+        }
+
+        function editKm() {
+            const km = prompt('KM Atual:', appData.currentKm.toString());
+            if (km !== null && km !== '') {
+                appData.currentKm = Math.max(0, parseInt(km) || 0);
+                saveData();
+                renderDashboard();
+                if (currentItem) {
+                    showDetail(currentItem.key, currentItem);
+                }
+            }
+        }
+
+        // Back Button Handler
+        document.addEventListener('keydown', (e) => {
+            if (e.key === 'Escape') {
+                const detailScreen = document.getElementById('detailScreen');
+                if (detailScreen.classList.contains('active')) {
+                    goBack();
+                }
+            }
+        });
+
+        // Create back button in header
+        const headerLeftBtn = document.getElementById('headerLeftBtn');
+        const headerRightBtn = document.getElementById('headerRightBtn');
+        const headerTitle = document.getElementById('headerTitle');
+
+        const originalLeftBtn = headerLeftBtn.cloneNode(true);
+        const originalRightBtn = headerRightBtn.cloneNode(true);
+
+        function updateHeaderForDetail() {
+            headerLeftBtn.textContent = '← Voltar';
+            headerLeftBtn.className = 'header-btn back';
+            headerLeftBtn.onclick = goBack;
+            headerTitle.textContent = 'Detalhes';
+            headerRightBtn.className = 'header-btn invisible';
+        }
+
+        function updateHeaderForDashboard() {
+            headerLeftBtn.innerHTML = originalLeftBtn.innerHTML;
+            headerLeftBtn.className = 'header-btn';
+            headerLeftBtn.onclick = addCar;
+            headerTitle.textContent = 'CarCare Pro';
+            headerRightBtn.innerHTML = originalRightBtn.innerHTML;
+            headerRightBtn.className = 'header-btn';
+            headerRightBtn.onclick = editKm;
+        }
+
+        // Observer for screen changes
+        const observer = new MutationObserver(() => {
+            const detailScreen = document.getElementById('detailScreen');
+            if (detailScreen.classList.contains('active')) {
+                updateHeaderForDetail();
+            } else {
+                updateHeaderForDashboard();
+            }
+        });
+
+        observer.observe(document.getElementById('detailScreen'), { attributes: true, attributeFilter: ['class'] });
+
+        // Initialize app
+        init();
+    </script>
+</body>
+</html>
